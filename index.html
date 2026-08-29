@@ -101,6 +101,109 @@
             background-color: var(--surface);
             padding: 2.5rem; border-radius: 16px;
             box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #F8F9FA;
+            --surface: #FFFFFF;
+            --text: #111827;
+            --muted: #6B7280;
+            --border: #E5E7EB;
+            --accent: #2563EB;
+            --accent-hover: #1D4ED8;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.01);
+            --success: #10B981;
+            --error: #EF4444;
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html.dark {
+            --bg: #111827;
+            --surface: #1F2937;
+            --text: #F9FAFB;
+            --muted: #9CA3AF;
+            --border: #374151;
+            --accent: #3B82F6;
+            --accent-hover: #60A5FA;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.5);
+            --success: #34D399;
+            --error: #F87171;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 2rem;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        /* Notification Container */
+        #notif-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: var(--surface);
+            color: var(--text);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--accent);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            opacity: 0;
+            transform: translateY(-100px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success { border-left-color: var(--success); }
+        .notification.error { border-left-color: var(--error); }
+
+        .notif-icon {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .container {
+            max-width: 1000px; width: 100%;
+            background-color: var(--surface);
+            padding: 2.5rem; border-radius: 16px;
+            box-shadow: var(--shadow-md);
             border: 1px solid var(--border);
             transition: background-color var(--transition), border-color var(--transition);
         }
@@ -265,174 +368,177 @@
         </div>
     </div>
 
-<script>
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById('themeToggle');
-    const sunIcon = document.getElementById('sun-icon');
-    const moonIcon = document.getElementById('moon-icon');
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
 
-    function setTheme(isDark) {
-        if (isDark) {
-            document.documentElement.classList.add('dark');
-            sunIcon.classList.remove('hidden');
-            moonIcon.classList.add('hidden');
-        } else {
-            document.documentElement.classList.remove('dark');
-            sunIcon.classList.add('hidden');
-            moonIcon.classList.remove('hidden');
-        }
-    }
-
-    themeToggle.addEventListener('click', () => {
-        setTheme(!document.documentElement.classList.contains('dark'));
-    });
-
-    // Initialize theme (Default to Dark for a sleek look)
-    setTheme(true);
-
-    // Custom Notification Logic
-    function showNotification(message, type = 'success') {
-        const container = document.getElementById('notif-container');
-        const notif = document.createElement('div');
-        notif.className = `notification ${type}`;
-
-        const iconSvg = type === 'success'
-            ? `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
-            : `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
-
-        notif.innerHTML = `${iconSvg}<span>${message}</span>`;
-        container.appendChild(notif);
-
-        setTimeout(() => notif.classList.add('show'), 10);
-        setTimeout(() => {
-            notif.classList.remove('show');
-            setTimeout(() => notif.remove(), 400);
-        }, 4000);
-    }
-
-    // ================================================================
-    // Connection logic — GitHub Pages + ntfy.sh relay (no backend)
-    // Personal link from the game (F4):
-    //   .../PlatformTT/?session=<id>&token=<token>&name=<player>
-    // Orders go to the server's private topic, results come back
-    // on a topic private to this session.
-    // ================================================================
-    const urlParams = new URLSearchParams(window.location.search);
-    const SESSION_ID = urlParams.get('session') || '';
-    const TOKEN = urlParams.get('token') || '';
-    const PLAYER_NAME = urlParams.get('name') || '';
-    const NTFY_BASE = 'https://ntfy.sh';
-    const ORDER_TOPIC = 'ptt-' + TOKEN;
-    const RESULT_TOPIC = ORDER_TOPIC + '-r-' + SESSION_ID;
-
-    // Prefill the donor name from the personal link (cosmetic — the
-    // game identifies you by the session, not by this field)
-    if (PLAYER_NAME) document.getElementById('donorName').value = PLAYER_NAME;
-
-    let currentPurchase = {};
-    let isProcessing = false;
-
-    function openModal(action, amount, price, actionText) {
-        if (!SESSION_ID || !TOKEN) {
-            showNotification('Open this page using your personal link from the game (press F4 in-game).', 'error');
-            return;
-        }
-        currentPurchase = { action, amount, price, actionText };
-        document.getElementById('modalPrice').textContent = `$${price.toFixed(2)}`;
-        document.getElementById('modalAction').textContent = actionText;
-        document.getElementById('modal').classList.add('active');
-    }
-
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        document.getElementById('modal').classList.remove('active');
-    });
-
-    // Read all cached messages on an ntfy topic (ndjson format)
-    async function fetchTopicMessages(topic) {
-        const res = await fetch(`${NTFY_BASE}/${topic}/json?poll=1`);
-        const text = await res.text();
-        const messages = [];
-        for (const line of text.split('\n')) {
-            if (!line.trim()) continue;
-            try {
-                const env = JSON.parse(line);
-                if (env.event === 'message' && env.message) messages.push(env.message);
-            } catch (e) { /* skip malformed line */ }
-        }
-        return messages;
-    }
-
-    // Poll the personal result topic until the game replies to our order
-    function waitForResult(oid, timeoutMs) {
-        return new Promise((resolve) => {
-            const startedAt = Date.now();
-            const timer = setInterval(async () => {
-                if (Date.now() - startedAt > timeoutMs) {
-                    clearInterval(timer);
-                    resolve(null);
-                    return;
-                }
-                try {
-                    const messages = await fetchTopicMessages(RESULT_TOPIC);
-                    for (const msg of messages) {
-                        try {
-                            const result = JSON.parse(msg);
-                            if (result.oid === oid) {
-                                clearInterval(timer);
-                                resolve(result);
-                                return;
-                            }
-                        } catch (e) { /* not a result message */ }
-                    }
-                } catch (e) { /* keep polling */ }
-            }, 2500);
-        });
-    }
-
-    async function processPayment() {
-        if (isProcessing) return;
-        if (!SESSION_ID || !TOKEN) {
-            showNotification('Open this page using your personal link from the game (press F4 in-game).', 'error');
-            return;
-        }
-
-        const product = (currentPurchase.action === 'sub' ? 'minus_' : 'plus_') + currentPurchase.amount;
-        const oid = 'o' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-
-        isProcessing = true;
-        const payBtn = document.getElementById('payBtn');
-        const originalLabel = payBtn.textContent;
-        payBtn.textContent = 'Processing...';
-
-        try {
-            // 1) Publish the order to the game server's private topic
-            await fetch(`${NTFY_BASE}/${ORDER_TOPIC}`, {
-                method: 'POST',
-                body: JSON.stringify({ sid: SESSION_ID, oid: oid, product: product })
-            });
-
-            showNotification('Payment submitted — waiting for the game to apply it...', 'info');
-
-            // 2) Wait for the game's reply on the personal result topic
-            const result = await waitForResult(oid, 45000);
-
-            if (!result) {
-                showNotification('No response from the game. Make sure you are still in-game, or press F4 for a fresh link.', 'error');
-            } else if (result.ok) {
-                showNotification(result.msg, 'success');
-                document.getElementById('modal').classList.remove('active');
+        function setTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
             } else {
-                showNotification(result.msg, 'error');
+                document.documentElement.classList.remove('dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
             }
-        } catch (e) {
-            showNotification('Error connecting to the relay server. Please try again.', 'error');
-        } finally {
-            isProcessing = false;
-            payBtn.textContent = originalLabel;
         }
-    }
 
-    document.getElementById('payBtn').addEventListener('click', processPayment);
-</script>
+        themeToggle.addEventListener('click', () => {
+            setTheme(!document.documentElement.classList.contains('dark'));
+        });
+
+        // Initialize theme (Default to Dark for a sleek look)
+        setTheme(true);
+
+        // Custom Notification Logic
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notif-container');
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+
+            const iconSvg = type === 'success'
+                ? `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
+                : `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
+
+            notif.innerHTML = `${iconSvg}<span>${message}</span>`;
+            container.appendChild(notif);
+
+            // Trigger animation
+            setTimeout(() => notif.classList.add('show'), 10);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notif.classList.remove('show');
+                setTimeout(() => notif.remove(), 400);
+            }, 4000);
+        }
+
+        // ================================================================
+        // Connection logic — GitHub Pages + ntfy.sh relay (no backend)
+        // Personal link from the game (shop icon / F4):
+        //   .../PlatformTT/?session=<id>&token=<token>&name=<player>
+        // Orders are published to the game server's private topic,
+        // results come back on a topic private to this session.
+        // ================================================================
+        const urlParams = new URLSearchParams(window.location.search);
+        const SESSION_ID = urlParams.get('session') || '';
+        const TOKEN = urlParams.get('token') || '';
+        const PLAYER_NAME = urlParams.get('name') || '';
+        const NTFY_BASE = 'https://ntfy.sh';
+        const ORDER_TOPIC = 'ptt-' + TOKEN;
+        const RESULT_TOPIC = ORDER_TOPIC + '-r-' + SESSION_ID;
+
+        // Prefill the donor name from the personal link (cosmetic — the
+        // game identifies you by the session, not by this field)
+        if (PLAYER_NAME) document.getElementById('donorName').value = PLAYER_NAME;
+
+        let currentPurchase = {};
+        let isProcessing = false;
+
+        function openModal(action, amount, price, actionText) {
+            if (!SESSION_ID || !TOKEN) {
+                showNotification('Open this page using your personal link from the game (press the shop icon or F4 in-game).', 'error');
+                return;
+            }
+            currentPurchase = { action, amount, price, actionText };
+            document.getElementById('modalPrice').textContent = `$${price.toFixed(2)}`;
+            document.getElementById('modalAction').textContent = actionText;
+            document.getElementById('modal').classList.add('active');
+        }
+
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            document.getElementById('modal').classList.remove('active');
+        });
+
+        // Read all cached messages on an ntfy topic (ndjson format)
+        async function fetchTopicMessages(topic) {
+            const res = await fetch(`${NTFY_BASE}/${topic}/json?poll=1`);
+            const text = await res.text();
+            const messages = [];
+            for (const line of text.split('\n')) {
+                if (!line.trim()) continue;
+                try {
+                    const env = JSON.parse(line);
+                    if (env.event === 'message' && env.message) messages.push(env.message);
+                } catch (e) { /* skip malformed line */ }
+            }
+            return messages;
+        }
+
+        // Poll the personal result topic until the game replies to our order
+        function waitForResult(oid, timeoutMs) {
+            return new Promise((resolve) => {
+                const startedAt = Date.now();
+                const timer = setInterval(async () => {
+                    if (Date.now() - startedAt > timeoutMs) {
+                        clearInterval(timer);
+                        resolve(null);
+                        return;
+                    }
+                    try {
+                        const messages = await fetchTopicMessages(RESULT_TOPIC);
+                        for (const msg of messages) {
+                            try {
+                                const result = JSON.parse(msg);
+                                if (result.oid === oid) {
+                                    clearInterval(timer);
+                                    resolve(result);
+                                    return;
+                                }
+                            } catch (e) { /* not a result message */ }
+                        }
+                    } catch (e) { /* keep polling */ }
+                }, 2500);
+            });
+        }
+
+        async function processPayment() {
+            if (isProcessing) return;
+            if (!SESSION_ID || !TOKEN) {
+                showNotification('Open this page using your personal link from the game (press the shop icon or F4 in-game).', 'error');
+                return;
+            }
+
+            const product = (currentPurchase.action === 'sub' ? 'minus_' : 'plus_') + currentPurchase.amount;
+            const oid = 'o' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
+            isProcessing = true;
+            const payBtn = document.getElementById('payBtn');
+            const originalLabel = payBtn.textContent;
+            payBtn.textContent = 'Processing...';
+
+            try {
+                // 1) Publish the order to the game server's private topic
+                await fetch(`${NTFY_BASE}/${ORDER_TOPIC}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ sid: SESSION_ID, oid: oid, product: product })
+                });
+
+                showNotification('Payment submitted — waiting for the game to apply it...', 'info');
+
+                // 2) Wait for the game's reply on the personal result topic
+                const result = await waitForResult(oid, 45000);
+
+                if (!result) {
+                    showNotification('No response from the game. Make sure you are still in-game, or get a fresh link (shop icon / F4).', 'error');
+                } else if (result.ok) {
+                    showNotification(result.msg, 'success');
+                    document.getElementById('modal').classList.remove('active');
+                } else {
+                    showNotification(result.msg, 'error');
+                }
+            } catch (e) {
+                showNotification('Error connecting to the relay server. Please try again.', 'error');
+            } finally {
+                isProcessing = false;
+                payBtn.textContent = originalLabel;
+            }
+        }
+
+        document.getElementById('payBtn').addEventListener('click', processPayment);
+    </script>
 </body>
 </html>
