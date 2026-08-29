@@ -265,92 +265,174 @@
         </div>
     </div>
 
-    <script>
-        // Theme Toggle Logic
-        const themeToggle = document.getElementById('themeToggle');
-        const sunIcon = document.getElementById('sun-icon');
-        const moonIcon = document.getElementById('moon-icon');
+<script>
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
 
-        function setTheme(isDark) {
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-                sunIcon.classList.remove('hidden');
-                moonIcon.classList.add('hidden');
-            } else {
-                document.documentElement.classList.remove('dark');
-                sunIcon.classList.add('hidden');
-                moonIcon.classList.remove('hidden');
-            }
+    function setTheme(isDark) {
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
         }
+    }
 
-        themeToggle.addEventListener('click', () => {
-            setTheme(!document.documentElement.classList.contains('dark'));
-        });
+    themeToggle.addEventListener('click', () => {
+        setTheme(!document.documentElement.classList.contains('dark'));
+    });
 
-        // Initialize theme (Default to Dark for a sleek look)
-        setTheme(true);
+    // Initialize theme (Default to Dark for a sleek look)
+    setTheme(true);
 
-        // Custom Notification Logic
-        function showNotification(message, type = 'success') {
-            const container = document.getElementById('notif-container');
-            const notif = document.createElement('div');
-            notif.className = `notification ${type}`;
-            
-            const iconSvg = type === 'success' 
-                ? `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
-                : `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
-            
-            notif.innerHTML = `${iconSvg}<span>${message}</span>`;
-            container.appendChild(notif);
+    // Custom Notification Logic
+    function showNotification(message, type = 'success') {
+        const container = document.getElementById('notif-container');
+        const notif = document.createElement('div');
+        notif.className = `notification ${type}`;
 
-            // Trigger animation
-            setTimeout(() => notif.classList.add('show'), 10);
+        const iconSvg = type === 'success'
+            ? `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`
+            : `<svg class="notif-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`;
 
-            // Remove after 4 seconds
-            setTimeout(() => {
-                notif.classList.remove('show');
-                setTimeout(() => notif.remove(), 400);
-            }, 4000);
+        notif.innerHTML = `${iconSvg}<span>${message}</span>`;
+        container.appendChild(notif);
+
+        setTimeout(() => notif.classList.add('show'), 10);
+        setTimeout(() => {
+            notif.classList.remove('show');
+            setTimeout(() => notif.remove(), 400);
+        }, 4000);
+    }
+
+    // ================================================================
+    // Connection logic — GitHub Pages + ntfy.sh relay (no backend)
+    // Personal link from the game (F4):
+    //   .../PlatformTT/?session=<id>&token=<token>&name=<player>
+    // Orders go to the server's private topic, results come back
+    // on a topic private to this session.
+    // ================================================================
+    const urlParams = new URLSearchParams(window.location.search);
+    const SESSION_ID = urlParams.get('session') || '';
+    const TOKEN = urlParams.get('token') || '';
+    const PLAYER_NAME = urlParams.get('name') || '';
+    const NTFY_BASE = 'https://ntfy.sh';
+    const ORDER_TOPIC = 'ptt-' + TOKEN;
+    const RESULT_TOPIC = ORDER_TOPIC + '-r-' + SESSION_ID;
+
+    // Prefill the donor name from the personal link (cosmetic — the
+    // game identifies you by the session, not by this field)
+    if (PLAYER_NAME) document.getElementById('donorName').value = PLAYER_NAME;
+
+    let currentPurchase = {};
+    let isProcessing = false;
+
+    function openModal(action, amount, price, actionText) {
+        if (!SESSION_ID || !TOKEN) {
+            showNotification('Open this page using your personal link from the game (press F4 in-game).', 'error');
+            return;
         }
+        currentPurchase = { action, amount, price, actionText };
+        document.getElementById('modalPrice').textContent = `$${price.toFixed(2)}`;
+        document.getElementById('modalAction').textContent = actionText;
+        document.getElementById('modal').classList.add('active');
+    }
 
-        // Purchase Logic
-        let currentPurchase = {};
+    document.getElementById('closeBtn').addEventListener('click', () => {
+        document.getElementById('modal').classList.remove('active');
+    });
 
-        function openModal(action, amount, price, actionText) {
-            const donor = document.getElementById('donorName').value;
-            if (!donor.trim()) {
-                showNotification('Please enter the donor name first.', 'error');
-                return;
-            }
-            
-            currentPurchase = { action, amount, price, actionText };
-            document.getElementById('modalPrice').textContent = `$${price.toFixed(2)}`;
-            document.getElementById('modalAction').textContent = actionText;
-            document.getElementById('modal').classList.add('active');
-        }
-
-        document.getElementById('closeBtn').addEventListener('click', () => {
-            document.getElementById('modal').classList.remove('active');
-        });
-
-        async function processPayment() {
-            const donor = document.getElementById('donorName').value;
-            const session = new URLSearchParams(window.location.search).get('session') || 'default';
-
+    // Read all cached messages on an ntfy topic (ndjson format)
+    async function fetchTopicMessages(topic) {
+        const res = await fetch(`${NTFY_BASE}/${topic}/json?poll=1`);
+        const text = await res.text();
+        const messages = [];
+        for (const line of text.split('\n')) {
+            if (!line.trim()) continue;
             try {
-                await fetch(`https://ntfy.sh/roblox-shop-${session}`, {
-                    method: 'POST',
-                    body: JSON.stringify({ donor, action: currentPurchase.action, amount: currentPurchase.amount })
-                });
-                
-                showNotification('Donation sent successfully! It will apply in-game shortly.', 'success');
-                document.getElementById('modal').classList.remove('active');
-            } catch (e) {
-                showNotification('Error connecting to server. Please try again.', 'error');
-            }
+                const env = JSON.parse(line);
+                if (env.event === 'message' && env.message) messages.push(env.message);
+            } catch (e) { /* skip malformed line */ }
         }
-        
-        document.getElementById('payBtn').addEventListener('click', processPayment);
-    </script>
+        return messages;
+    }
+
+    // Poll the personal result topic until the game replies to our order
+    function waitForResult(oid, timeoutMs) {
+        return new Promise((resolve) => {
+            const startedAt = Date.now();
+            const timer = setInterval(async () => {
+                if (Date.now() - startedAt > timeoutMs) {
+                    clearInterval(timer);
+                    resolve(null);
+                    return;
+                }
+                try {
+                    const messages = await fetchTopicMessages(RESULT_TOPIC);
+                    for (const msg of messages) {
+                        try {
+                            const result = JSON.parse(msg);
+                            if (result.oid === oid) {
+                                clearInterval(timer);
+                                resolve(result);
+                                return;
+                            }
+                        } catch (e) { /* not a result message */ }
+                    }
+                } catch (e) { /* keep polling */ }
+            }, 2500);
+        });
+    }
+
+    async function processPayment() {
+        if (isProcessing) return;
+        if (!SESSION_ID || !TOKEN) {
+            showNotification('Open this page using your personal link from the game (press F4 in-game).', 'error');
+            return;
+        }
+
+        const product = (currentPurchase.action === 'sub' ? 'minus_' : 'plus_') + currentPurchase.amount;
+        const oid = 'o' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+
+        isProcessing = true;
+        const payBtn = document.getElementById('payBtn');
+        const originalLabel = payBtn.textContent;
+        payBtn.textContent = 'Processing...';
+
+        try {
+            // 1) Publish the order to the game server's private topic
+            await fetch(`${NTFY_BASE}/${ORDER_TOPIC}`, {
+                method: 'POST',
+                body: JSON.stringify({ sid: SESSION_ID, oid: oid, product: product })
+            });
+
+            showNotification('Payment submitted — waiting for the game to apply it...', 'info');
+
+            // 2) Wait for the game's reply on the personal result topic
+            const result = await waitForResult(oid, 45000);
+
+            if (!result) {
+                showNotification('No response from the game. Make sure you are still in-game, or press F4 for a fresh link.', 'error');
+            } else if (result.ok) {
+                showNotification(result.msg, 'success');
+                document.getElementById('modal').classList.remove('active');
+            } else {
+                showNotification(result.msg, 'error');
+            }
+        } catch (e) {
+            showNotification('Error connecting to the relay server. Please try again.', 'error');
+        } finally {
+            isProcessing = false;
+            payBtn.textContent = originalLabel;
+        }
+    }
+
+    document.getElementById('payBtn').addEventListener('click', processPayment);
+</script>
 </body>
 </html>
